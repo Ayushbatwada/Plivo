@@ -1,0 +1,8 @@
+{
+  "mongodbName": "app_backend",
+  "mongodbUri": "localhost:27017",
+  "mongodbUserName": "",
+  "mongodbPassword": "",
+  "webClientId": "",
+  "jwtSecretKey": ""
+}
