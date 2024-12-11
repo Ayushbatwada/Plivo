@@ -22,11 +22,10 @@ This README provides detailed instructions and information about the backend of 
 ### **2. Installation**
 
 1. Clone the repository:
-   [git clone https://github.com/your-repo-url/status-page-backend.git](https://github.com/Ayushbatwada/Plivo.git)
+   git clone https://github.com/Ayushbatwada/Plivo.git
    cd Plivo/backend
 
 2. Install dependencies:
-   bash
    npm install
 
 ### **3. Configuration**
@@ -69,3 +68,19 @@ The server should now be running on `http://localhost:6000`.
 | GET    | v1/api/incidenst/get/all     | Get all incidents         |
 | POST   | v1/api/incidents/create/new  | Create new incident       | 
 | PUT    | v1/api/incidents/update      | Update a incident         |
+
+
+
+# Frontend ReadMe
+
+### **2. Installation**
+
+1. Clone the repository:
+   git clone https://github.com/Ayushbatwada/Plivo.git
+   cd Plivo/frontend
+
+2. Install dependencies:
+   npm install
+
+3. Run the server
+   npm run start
