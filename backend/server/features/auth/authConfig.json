@@ -1,0 +1,21 @@
+{
+  "status": {
+    "active": "active",
+    "blocked": "blocked",
+    "terminated": "terminated",
+    "values": [
+      "active",
+      "blocked",
+      "terminated"
+    ]
+  },
+
+  "roles": {
+    "user": "user",
+    "admin": "admin",
+    "values": ["user", "admin"]
+  },
+  "saltRound": 10,
+  "jwtValidityDuration": "24h",
+  "jwtValidityDurationInMilliSeconds": 86400000
+}

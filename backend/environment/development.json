@@ -5,7 +5,7 @@
   "mongodbPassword": "",
   "redisUrl": "",
   "redisPassword": "",
-  "jwtSecretKey": "",
+  "jwtSecretKey": "ABCDabcdEFGHefghIJKLMijklmNOPQRSnopqrsTUVtuvWXYwxyZ",
   "email": "",
   "emailPassword": ""
 }
