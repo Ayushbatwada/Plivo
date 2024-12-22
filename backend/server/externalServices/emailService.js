@@ -3,12 +3,12 @@ const sanityChecks = require("../../utils/sanityChecks");
 
 module.exports = {
     sendEmail: (options) => {
-        if (!sanityChecks.isValidString(options.userIds)) {
-            return console.log('Info ::: missing info emailService inside sendMail, userIds: ', options.userIds)
+        if (!sanityChecks.isValidString(options.userEmails)) {
+            return console.log('Info ::: missing info emailService inside sendMail, userIds: ', options.userEmails)
         }
         const mailOptions = {
             from: `Communication ${EMAIL}`,
-            to: options.userIds || [],
+            to: options.userEmails || [],
             subject: options.subject || "Service status update",
             html: `<p style="font-size: 14px">${options.message}</p>`
         };

@@ -17,6 +17,24 @@ function getJWTToken(payload, secretKey, options, callback) {
 }
 
 module.exports = {
+    getUserEmails: (callback) => {
+        let response;
+        authModel.findOne({}, {email: 1}).then(async (authRes) => {
+            if (sanityChecks.isValidArray(authRes)) {
+                response = new responseMessages.successMessage();
+                response.data = authRes;
+                callback(authRes);
+            } else {
+                response = new responseMessages.notFound();
+                callback(authRes);
+            }
+        }).catch((err) => {
+            console.log('ERROR ::: found in authService inside getUserEmails db catch block', err);
+            response = new responseMessages.serverError();
+            callback(response);
+        });
+    },
+
     signup: async (req, res) => {
         let response;
         const name = req.body.name;

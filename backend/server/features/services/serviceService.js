@@ -2,6 +2,7 @@ const serviceModel = require('./serviceModel');
 const sanityChecks = require("../../../utils/sanityChecks");
 const responseMessages = require("../../../utils/responseMessages");
 const emailService = require("../../externalServices/emailService");
+const authService = require("../../features/auth/authService");
 const serviceConfig = require("./serviceConfig");
 
 module.exports = {
@@ -72,8 +73,8 @@ module.exports = {
         }
     },
 
-    updateService: (req, res) => {
-        let response, body = req.body;
+    updateService: (body, callback) => {
+        let response;
         const name = body.name;
         const description = body.description;
         const category = body.category;
@@ -83,7 +84,7 @@ module.exports = {
             if (!sanityChecks.isValidId(body.serviceId)) {
                 console.log('Info ::: Missing info in serviceService inside updateService, serviceId: ', serviceId);
                 response = new responseMessages.payloadError();
-                return res.status(response.code).send(response);
+                return sanityChecks.isValidFunction(callback) ? callback(response) : response;
             }
 
             const query = {_id: serviceId};
@@ -107,23 +108,23 @@ module.exports = {
                 if (sanityChecks.isValidObject(updateServiceRes)) {
                     response = new responseMessages.successMessage();
                     response.data = updateServiceRes;
-                    return res.status(response.code).send(response);
+                    return sanityChecks.isValidFunction(callback) ? callback(response) : response;
                 }  else {
                     response = new responseMessages.notFound();
-                    return res.status(response.code).send(response);
+                    return sanityChecks.isValidFunction(callback) ? callback(response) : response;
                 }
             }).catch((err) => {
                 response = new responseMessages.serverError();
-                return res.status(response.code).send(response);
+                return sanityChecks.isValidFunction(callback) ? callback(response) : response;
             });
         } catch (err) {
             response = new responseMessages.serverError();
-            return res.status(response.code).send(response);
+            return sanityChecks.isValidFunction(callback) ? callback(response) : response;
         }
     },
 
-    updateServiceStatus: (req, res) => {
-        let response, body = req.body;
+    updateServiceStatus: (body, callback) => {
+        let response;
         const serviceId = body.serviceId;
         const status = body.status;
 
@@ -131,7 +132,8 @@ module.exports = {
             if (!sanityChecks.isValidId(serviceId) || !serviceConfig.status.values.includes(status)) {
                 console.log('Info ::: Missing info in serviceService inside updateServiceStatus, serviceId: ', serviceId + '. status', status);
                 response = new responseMessages.payloadError();
-                return res.status(response.code).send(response);
+                return sanityChecks.isValidFunction(callback) ? callback(response) : response;
+
             }
 
             const body = {}
@@ -150,28 +152,34 @@ module.exports = {
                     response = new responseMessages.successMessage();
 
                     // Send mail
-                    const mailOptions = {
-                        userIds: [].join(','),
-                        message: `Your service - <b>${updateServiceStatusRes.name}</b> status has been changed from <b>${updateServiceStatusRes.status}</b> to <b>${body.status}</b>`
-                    }
-                    emailService.sendEmail(mailOptions);
+                    authService.getUserEmails((getUserEmailsRes) => {
+                        if (sanityChecks.isValidObject(getUserEmailsRes) && sanityChecks.isValidArray(getUserEmailsRes.data)) {
+                            let userEmails = [];
+                            getUserEmailsRes.data.forEach((user) => {
+                                userEmails.push(user.email);
+                            });
+                            const mailOptions = {
+                                userEmails: userEmails.join(','),
+                                message: `Your service - <b>${updateServiceStatusRes.name}</b> status has been changed from <b>${updateServiceStatusRes.status}</b> to <b>${body.status}</b>`
+                            }
+                            emailService.sendEmail(mailOptions);
+                        }
+                    });
 
                     updateServiceStatusRes.status = body.status;
                     response.data = updateServiceStatusRes;
-                    return res.status(response.code).send(response);
+                    return sanityChecks.isValidFunction(callback) ? callback(response) : response;
                 }  else {
                     response = new responseMessages.notFound();
-                    return res.status(response.code).send(response);
+                    return sanityChecks.isValidFunction(callback) ? callback(response) : response;
                 }
             }).catch((err) => {
-                console.log(err);
                 response = new responseMessages.serverError();
-                return res.status(response.code).send(response);
+                return sanityChecks.isValidFunction(callback) ? callback(response) : response;
             });
         } catch (err) {
-            console.log(err);
             response = new responseMessages.serverError();
-            return res.status(response.code).send(response);
+            return sanityChecks.isValidFunction(callback) ? callback(response) : response;
         }
     },
 }
