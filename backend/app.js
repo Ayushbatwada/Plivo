@@ -1,6 +1,13 @@
+const {http} = require('http');
 const express = require('express');
-const path = require("path");
+const { Server } = require('socket.io');
+const { createClient } = require("redis");
+const { createAdapter } = require("@socket.io/redis-adapter");
+const socketService = require('./server/externalServices/socketService');
+
 const app = express();
+
+const httpServer = http.createServer(app);
 
 require('./config/global');
 require('dotenv').config();
@@ -23,6 +30,17 @@ app.use((req, res, next) => {
     }
 });
 
+// Connect with socket
+const socketIO = new Server(httpServer, {
+    path: '/user',
+    pingInterval: 60 * 1000,
+    pingTimeout: 30 * 1000,
+    cors: {
+        origin: "*",
+        methods: ['GET', 'POST'],
+    }
+});
+
 app.use(express.static("public"));
 
 // Db connection
@@ -33,8 +51,26 @@ dbConnection.on('error', ()=> {
     console.log('Mongo connection failed')
 });
 
+const pubClient = createClient({
+    password: REDIS_PASSOWRD,
+    socket: {
+        host: REDISURL,
+        port: 14286
+    }
+});
+const subClient = pubClient.duplicate();
+
+Promise.allSettled([pubClient.connect(), subClient.connect()]).then(() => {
+    console.log('Connected to redis');
+    global.redisClient = pubClient;
+    socketIO.adapter(createAdapter(pubClient, subClient));
+    global.socketIO = socketIO;
+    socketService.initiateSocketConnection();
+}).catch((err) => {
+    console.log('Redis connection failed with following error', JSON.stringify(err));
+});
+
 // Import routes
 require('./routes')(app);
 
-const http = require('http').createServer(app);
-http.listen(6000, () => console.log('Server running on port 6000'));
+httpServer.listen(6000, () => console.log('Server running on port 6000'));

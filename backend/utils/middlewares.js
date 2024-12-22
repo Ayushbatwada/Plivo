@@ -31,5 +31,9 @@ module.exports = {
             response = new responseMessages.serverError();
             res.status(response.code).send(response);
         }
+    },
+
+    isUserAdmin: (req, res, next) => {
+        next();
     }
 }

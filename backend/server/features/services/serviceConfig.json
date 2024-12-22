@@ -1,0 +1,20 @@
+{
+  "status": {
+    "operational": "operational",
+    "degraded_performance": "degraded_performance",
+    "partial_outage": "partial_outage",
+    "major_outage": "major_outage",
+    "terminated": "terminated",
+    "values": [
+      "operational", "degraded_performance", "partial_outage","major_outage", "terminated"
+    ]
+  },
+
+  "category": {
+    "api": "api",
+    "database": "database",
+    "website": "website",
+    "other": "other",
+    "values": ["api", "database", "website", "other"]
+  }
+}

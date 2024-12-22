@@ -1,8 +1,11 @@
 {
-  "mongodbName": "app_backend",
+  "mongodbName": "plivo",
   "mongodbUri": "localhost:27017",
   "mongodbUserName": "",
   "mongodbPassword": "",
-  "webClientId": "",
-  "jwtSecretKey": ""
+  "redisUrl": "",
+  "redisPassword": "",
+  "jwtSecretKey": "",
+  "email": "",
+  "emailPassword": ""
 }

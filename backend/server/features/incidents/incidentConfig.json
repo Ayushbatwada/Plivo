@@ -1,0 +1,8 @@
+{
+  "status": {
+    "open": "open",
+    "resolved": "resolved",
+    "deleted": "deleted",
+    "values": ["open", "resolved", "deleted"]
+  }
+}
