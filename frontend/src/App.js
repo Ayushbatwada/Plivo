@@ -1,25 +1,19 @@
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
-import Home from './pages/Home';
+import {Routes, Route, Navigate} from 'react-router-dom';
+
+import Auth from './pages/auth/Auth';
 import Services from './pages/Services';
 import Incidents from './pages/Incidents';
-import StatusPage from './pages/Status';
-import Login from './pages/Login';
-import Navbar from './components/Navbar';
 
 function App() {
-  return (
-      <div className="App">
-        <Navbar />
+    return (
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/services" element={<Services />} />
-          <Route path="/incidents" element={<Incidents />} />
-          <Route path="/status" element={<StatusPage />} />
-          <Route path="/login" element={<Login />} />
+            <Route path="/" element={<Navigate to="/auth" />}/>
+            <Route path="/auth" element={<Auth/>}/>
+            <Route path="/services" element={<Services/>}/>
+            <Route path="/incidents" element={<Incidents/>}/>
         </Routes>
-      </div>
-  );
+    );
 }
 
 export default App;

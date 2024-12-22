@@ -73,4 +73,4 @@ Promise.allSettled([pubClient.connect(), subClient.connect()]).then(() => {
 // Import routes
 require('./routes')(app);
 
-httpServer.listen(6000, () => console.log('Server running on port 6000'));
+httpServer.listen(3200, () => console.log('Server running on port 3200'));
