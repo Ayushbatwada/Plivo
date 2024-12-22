@@ -1,18 +1,21 @@
 const incidentModel = require('./incidentModel');
+const incidentConfig = require('./incidentConfig');
+const serviceConfig = require("../services/serviceConfig.json");
 const sanityChecks = require("../../../utils/sanityChecks");
 const responseMessages = require("../../../utils/responseMessages");
 
 module.exports = {
     getAllIncidents: (req, res) => {
         let response;
-        const userId = req.query.uid;
+        const serviceId = req.query.serviceId;
 
         try {
-            if (!sanityChecks.isValidId(userId)) {
+            if (!sanityChecks.isValidId(serviceId)) {
+                console.log('Info ::: Missing info in incidentService inside getAllIncidents, serviceId: ', serviceId);
                 response = new responseMessages.payloadError();
                 return res.status(response.code).send(response);
             }
-            const query = {"createdBy.userId": userId, status: 'active'};
+            const query = {serviceId: serviceId, status: incidentConfig.status.open};
 
             incidentModel.find(query).then((getAllIncidentsRes) => {
                 if (sanityChecks.isValidArray(getAllIncidentsRes) && sanityChecks.isValidArray(getAllIncidentsRes)) {
@@ -34,16 +37,28 @@ module.exports = {
     },
 
     createIncident: (req, res) => {
-        let response, body = req.body;
+        let response,body = req.body;
+        const description = body.description;
+        const serviceId = body.serviceId;
+        const createdBy = body.createdBy;
+
         try {
-            if (!(sanityChecks.isValidObject(body.createdBy))) {
+            if (!sanityChecks.isValidId(serviceId) || !sanityChecks.isValidString(description) ||
+                !sanityChecks.isValidObject(createdBy) || !sanityChecks.isValidId(createdBy.userId)) {
+                console.log('Info ::: Missing info in incidentService inside createIncident, createdBy: ', JSON.stringify(createdBy) + '. serviceId: ', serviceId +
+                '. description: ', description);
                 response = new responseMessages.payloadError();
                 return res.status(response.code).send(response);
             }
 
-            const incidentItemBody = new incidentModel(req.body);
+            const payload = {
+                description: description,
+                createdBy: createdBy,
+                serviceId: serviceId,
+                updates: [description]
+            }
 
-
+            const incidentItemBody = new incidentModel(payload);
             incidentItemBody.save().then((incidentItemBodyRes) => {
                 if (sanityChecks.isValidObject(incidentItemBodyRes)) {
                     response = new responseMessages.successMessage();
@@ -65,14 +80,28 @@ module.exports = {
 
     updateIncident: (req, res) => {
         let response, body = req.body;
+        const description = body.description;
+        const update = body.update;
+        const incidentId = body.incidentId
 
         try {
-            if (!sanityChecks.isValidId(body.incidentId) || sanityChecks.isValidObject(body.createdBy) || !sanityChecks.isValidId(body.createdBy.userId)) {
+            if (!sanityChecks.isValidId(incidentId)) {
+                console.log('Info ::: Missing info in incidentService inside updateIncident, incidentId: ', incidentId);
                 response = new responseMessages.payloadError();
                 return res.status(response.code).send(response);
             }
 
-            const query = {_id: body.incidentId, "created.userId": body.createdBy.userId, status: 'open'};
+            const query = {_id: incidentId, status: incidentConfig.status.open};
+
+            const body = {};
+
+            if (sanityChecks.isValidString(description)) {
+                body.description = description;
+            }
+
+            if (sanityChecks.isValidString(update)) {
+                body.$push = { updates: update };
+            }
 
             const options = {
                 returnDocument: "after"
@@ -81,6 +110,7 @@ module.exports = {
             incidentModel.findOneAndUpdate(query, body, options).then((updateIncidentRes) => {
                 if (sanityChecks.isValidObject(updateIncidentRes)) {
                     response = new responseMessages.successMessage();
+                    response.data = updateIncidentRes;
                     return res.status(response.code).send(response);
                 }  else {
                     response = new responseMessages.notFound();
@@ -97,37 +127,45 @@ module.exports = {
     },
 
     updateIncidentStatus: (req, res) => {
-        let response;
-        const incidentId = req.body.incidentId;
-        const createdBy = req.body.createdBy;
+        let response, body = req.body;
+        const incidentId = body.incidentId;
+        const incidentCreatedAt = body.incidentCreatedAt;
 
         try {
-            if (!sanityChecks.isValidId(incidentId) || sanityChecks.isValidObject(createdBy) || !sanityChecks.isValidId(createdBy.userId)) {
+            if (!sanityChecks.isValidId(incidentId) || !sanityChecks.isValidDate(incidentCreatedAt)) {
+                console.log('Info ::: Missing info in incidentService inside updateIncidentStatus, incidentId: ', incidentId + '. incidentCreatedAt', incidentCreatedAt);
                 response = new responseMessages.payloadError();
                 return res.status(response.code).send(response);
             }
 
-            const query = {_id: incidentId, "created.userId": createdBy.userId, status: 'open'};
+            const query = {_id: incidentId, status: incidentConfig.status.open };
+
             const body = {
-                status: 'closed'
-            }
+                resolvedAt: new Date().toISOString(),
+                duration: new Date().getTime() - new Date(incidentCreatedAt).getTime(),
+                status: incidentConfig.status.resolved
+            };
+
             const options = {
                 returnDocument: "after"
             }
 
-            incidentModel.findOneAndUpdate(query, body, options).then((deleteCategoryItem) => {
-                if (sanityChecks.isValidObject(deleteCategoryItem)) {
+            incidentModel.findOneAndUpdate(query, body, options).then((updateIncidentStatusRes) => {
+                if (sanityChecks.isValidObject(updateIncidentStatusRes)) {
                     response = new responseMessages.successMessage();
+                    response.data = updateIncidentStatusRes;
                     return res.status(response.code).send(response);
                 }  else {
                     response = new responseMessages.notFound();
                     return res.status(response.code).send(response);
                 }
             }).catch((err) => {
+                console.log(err);
                 response = new responseMessages.serverError();
                 return res.status(response.code).send(response);
             });
         } catch (err) {
+            console.log(err);
             response = new responseMessages.serverError();
             return res.status(response.code).send(response);
         }

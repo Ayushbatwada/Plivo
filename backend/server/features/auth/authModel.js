@@ -3,6 +3,11 @@ const mongoose = require('mongoose');
 const authConfig = require('./authConfig.json');
 
 const authSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: true
+    },
+
     email: {
         type: String,
         unique: true,

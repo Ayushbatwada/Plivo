@@ -19,11 +19,12 @@ function getJWTToken(payload, secretKey, options, callback) {
 module.exports = {
     signup: async (req, res) => {
         let response;
+        const name = req.body.name;
         const email = req.body.email;
         const password = req.body.password;
 
-        if (!sanityChecks.isValidString(password) || !sanityChecks.isValidEmail(email)) {
-            console.log('Info ::: Missing info in authService inside signup, email: ', email + '. password: ', password);
+        if (!sanityChecks.isValidString(password) || !sanityChecks.isValidEmail(email) || !sanityChecks.isValidString(name)) {
+            console.log('Info ::: Missing info in authService inside signup, email: ', email + '. password: ', password + '. name: ', name);
             response = new responseMessages.payloadError();
             return res.status(response.code).send(response);
         }
@@ -33,6 +34,7 @@ module.exports = {
             const user = new authModel();
             user.email = email;
             user.password = hashPassword;
+            user.name = name
 
             user.save().then((authRes) => {
                 if (sanityChecks.isValidObject(authRes)) {

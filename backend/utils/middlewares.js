@@ -11,7 +11,7 @@ module.exports = {
 
         if (!sanityChecks.isValidString(token) || !sanityChecks.isValidString(callerId) ) {
             console.log('Info ::: Missing info in middleware inside isUsedAuthenticated, token: ', token + '. callerId: ', callerId);
-            response = new responseMessages.payloadError();
+            response = new responseMessages.unauthorised();
             return res.status(response.code).send(response);
         }
 
@@ -36,12 +36,12 @@ module.exports = {
     },
 
     isUserAdmin: (req, res, next) => {
-        let response
-       if (sanityChecks.isValidArray(req.body.roles) && req.body.roles.includes('admin')) {
-           next();
-       } else {
+        let response;
+        if (sanityChecks.isValidArray(req.body.roles) && req.body.roles.includes('admin')) {
+            next();
+        } else {
            console.log('ERROR ::: found in middleware inside isUserAdmin error block');
-           response = new responseMessages.serverError();
+           response = new responseMessages.unauthorised();
            res.status(response.code).send(response);
        }
     },

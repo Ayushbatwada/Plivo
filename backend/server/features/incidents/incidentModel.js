@@ -22,7 +22,7 @@ const IncidentSchema = new mongoose.Schema({
         type: Date,
     },
 
-    // In seconds
+    // In milliseconds
     duration: {
         type: Number,
         default: 0
