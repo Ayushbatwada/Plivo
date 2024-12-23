@@ -6,10 +6,40 @@ const authService = require("../../features/auth/authService");
 const serviceConfig = require("./serviceConfig");
 
 module.exports = {
+    getServiceStatus: (req, res) => {
+        let response;
+        const serviceId = req.params.serviceId;
+        if (!sanityChecks.isValidId(serviceId)) {
+            console.log('Info ::: Missing info in serviceService inside getServiceStatus, serviceId: ', serviceId);
+            response = new responseMessages.payloadError();
+            return res.status(response.code).send(response);
+        }
+
+        try {
+            serviceModel.findById({_id: serviceId}).then((getServiceStatusRes) => {
+                if (sanityChecks.isValidObject(getServiceStatusRes)) {
+                    return res.send({
+                        status: getServiceStatusRes.status,
+                        message: `Service - ${getServiceStatusRes.name} status is ${getServiceStatusRes.status}`
+                    });
+                } else {
+                    response = new responseMessages.notFound();
+                    return res.status(response.code).send(response);
+                }
+            }).catch(() => {
+                response = new responseMessages.serverError();
+                return res.status(response.code).send(response);
+            })
+        } catch (err) {
+            response = new responseMessages.serverError();
+            return res.status(response.code).send(response);
+        }
+    },
+
     getAllServices: (req, res) => {
         let response;
         try {
-            serviceModel.find().then((getAllServicesRes) => {
+            serviceModel.find({}).then((getAllServicesRes) => {
                 if (sanityChecks.isValidArray(getAllServicesRes) && sanityChecks.isValidArray(getAllServicesRes)) {
                     response = new responseMessages.successMessage();
                     response.data = getAllServicesRes;
@@ -29,7 +59,7 @@ module.exports = {
     },
 
     createNewService: (req, res) => {
-        let response,body = req.body;
+        let response, body = req.body;
         const createdBy = body.createdBy;
         const name = body.name;
         const description = body.description;
@@ -84,7 +114,7 @@ module.exports = {
             if (!sanityChecks.isValidId(body.serviceId)) {
                 console.log('Info ::: Missing info in serviceService inside updateService, serviceId: ', serviceId);
                 response = new responseMessages.payloadError();
-                return sanityChecks.isValidFunction(callback) ? callback(response) : response;
+                return sanityChecks.isValidFunction(callback) ? callback(null, response) : response;
             }
 
             const query = {_id: serviceId};
@@ -108,18 +138,18 @@ module.exports = {
                 if (sanityChecks.isValidObject(updateServiceRes)) {
                     response = new responseMessages.successMessage();
                     response.data = updateServiceRes;
-                    return sanityChecks.isValidFunction(callback) ? callback(response) : response;
-                }  else {
+                    return sanityChecks.isValidFunction(callback) ? callback(null, response) : response;
+                } else {
                     response = new responseMessages.notFound();
-                    return sanityChecks.isValidFunction(callback) ? callback(response) : response;
+                    return sanityChecks.isValidFunction(callback) ? callback(null, response) : response;
                 }
             }).catch((err) => {
                 response = new responseMessages.serverError();
-                return sanityChecks.isValidFunction(callback) ? callback(response) : response;
+                return sanityChecks.isValidFunction(callback) ? callback(null, response) : response;
             });
         } catch (err) {
             response = new responseMessages.serverError();
-            return sanityChecks.isValidFunction(callback) ? callback(response) : response;
+            return sanityChecks.isValidFunction(callback) ? callback(null, response) : response;
         }
     },
 
@@ -132,7 +162,7 @@ module.exports = {
             if (!sanityChecks.isValidId(serviceId) || !serviceConfig.status.values.includes(status)) {
                 console.log('Info ::: Missing info in serviceService inside updateServiceStatus, serviceId: ', serviceId + '. status', status);
                 response = new responseMessages.payloadError();
-                return sanityChecks.isValidFunction(callback) ? callback(response) : response;
+                return sanityChecks.isValidFunction(callback) ? callback(null, response) : response;
 
             }
 
@@ -141,7 +171,7 @@ module.exports = {
                 body.status = status || serviceConfig.status.operational;
             }
 
-            const query = {_id: serviceId, status: { $not: { $eq: body.status } }};
+            const query = {_id: serviceId, status: {$not: {$eq: body.status}}};
 
             const options = {
                 returnDocument: "before"
@@ -168,18 +198,18 @@ module.exports = {
 
                     updateServiceStatusRes.status = body.status;
                     response.data = updateServiceStatusRes;
-                    return sanityChecks.isValidFunction(callback) ? callback(response) : response;
-                }  else {
+                    return sanityChecks.isValidFunction(callback) ? callback(null, response) : response;
+                } else {
                     response = new responseMessages.notFound();
-                    return sanityChecks.isValidFunction(callback) ? callback(response) : response;
+                    return sanityChecks.isValidFunction(callback) ? callback(null, response) : response;
                 }
             }).catch((err) => {
                 response = new responseMessages.serverError();
-                return sanityChecks.isValidFunction(callback) ? callback(response) : response;
+                return sanityChecks.isValidFunction(callback) ? callback(null, response) : response;
             });
         } catch (err) {
             response = new responseMessages.serverError();
-            return sanityChecks.isValidFunction(callback) ? callback(response) : response;
+            return sanityChecks.isValidFunction(callback) ? callback(null, response) : response;
         }
     },
 }

@@ -5,7 +5,7 @@ const serviceConfig = require("../features/services/serviceConfig.json");
 const serviceService = require('../features/services/serviceService');
 const incidentService = require('../features/incidents/incidentService');
 
-let socketIdsMap, connectedUsers = {};
+let socketIdsMap = {}, connectedUsers = {};
 
 function authenticateUser(token, next) {
     try {
@@ -40,7 +40,7 @@ module.exports = {
         });
 
         socketIO.of('/user').on('connection', (socket) => {
-            const userId = socket.handshake.query.userId;
+            const userId = socket.handshake.auth.userId;
             console.log(`User ${userId} is connected with socket ID: ${socket.id}`);
             socketIdsMap[socket.id] = userId;
 

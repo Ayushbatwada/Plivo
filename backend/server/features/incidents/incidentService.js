@@ -48,7 +48,7 @@ module.exports = {
                 console.log('Info ::: Missing info in incidentService inside createIncident, createdBy: ', JSON.stringify(createdBy) + '. serviceId: ', serviceId +
                 '. description: ', description);
                 response = new responseMessages.payloadError();
-                return sanityChecks.isValidFunction(callback) ? callback(response) : response;
+                return sanityChecks.isValidFunction(callback) ? callback(null, response) : response;
             }
 
             const payload = {
@@ -63,18 +63,18 @@ module.exports = {
                 if (sanityChecks.isValidObject(incidentItemBodyRes)) {
                     response = new responseMessages.successMessage();
                     response.data = incidentItemBodyRes;
-                    return sanityChecks.isValidFunction(callback) ? callback(response) : response;
+                    return sanityChecks.isValidFunction(callback) ? callback(null, response) : response;
                 } else {
                     response = new responseMessages.notFound();
-                    return sanityChecks.isValidFunction(callback) ? callback(response) : response;
+                    return sanityChecks.isValidFunction(callback) ? callback(null, response) : response;
                 }
             }).catch((err) => {
                 response = new responseMessages.serverError();
-                return sanityChecks.isValidFunction(callback) ? callback(response) : response;
+                return sanityChecks.isValidFunction(callback) ? callback(null, response) : response;
             })
         } catch (err) {
             response = new responseMessages.serverError();
-            return sanityChecks.isValidFunction(callback) ? callback(response) : response;
+            return sanityChecks.isValidFunction(callback) ? callback(null, response) : response;
         }
     },
 
@@ -88,7 +88,7 @@ module.exports = {
             if (!sanityChecks.isValidId(incidentId)) {
                 console.log('Info ::: Missing info in incidentService inside updateIncident, incidentId: ', incidentId);
                 response = new responseMessages.payloadError();
-                return sanityChecks.isValidFunction(callback) ? callback(response) : response;
+                return sanityChecks.isValidFunction(callback) ? callback(null, response) : response;
             }
 
             const query = {_id: incidentId, status: incidentConfig.status.open};
@@ -111,18 +111,18 @@ module.exports = {
                 if (sanityChecks.isValidObject(updateIncidentRes)) {
                     response = new responseMessages.successMessage();
                     response.data = updateIncidentRes;
-                    return sanityChecks.isValidFunction(callback) ? callback(response) : response;
+                    return sanityChecks.isValidFunction(callback) ? callback(null, response) : response;
                 }  else {
                     response = new responseMessages.notFound();
-                    return sanityChecks.isValidFunction(callback) ? callback(response) : response;
+                    return sanityChecks.isValidFunction(callback) ? callback(null, response) : response;
                 }
             }).catch((err) => {
                 response = new responseMessages.serverError();
-                return sanityChecks.isValidFunction(callback) ? callback(response) : response;
+                return sanityChecks.isValidFunction(callback) ? callback(null, response) : response;
             });
         } catch (err) {
             response = new responseMessages.serverError();
-            return sanityChecks.isValidFunction(callback) ? callback(response) : response;
+            return sanityChecks.isValidFunction(callback) ? callback(null, response) : response;
         }
     },
 
@@ -135,7 +135,7 @@ module.exports = {
             if (!sanityChecks.isValidId(incidentId) || !sanityChecks.isValidDate(incidentCreatedAt)) {
                 console.log('Info ::: Missing info in incidentService inside updateIncidentStatus, incidentId: ', incidentId + '. incidentCreatedAt', incidentCreatedAt);
                 response = new responseMessages.payloadError();
-                return sanityChecks.isValidFunction(callback) ? callback(response) : response;
+                return sanityChecks.isValidFunction(callback) ? callback(null, response) : response;
             }
 
             const query = {_id: incidentId, status: incidentConfig.status.open };
@@ -154,20 +154,18 @@ module.exports = {
                 if (sanityChecks.isValidObject(updateIncidentStatusRes)) {
                     response = new responseMessages.successMessage();
                     response.data = updateIncidentStatusRes;
-                    return sanityChecks.isValidFunction(callback) ? callback(response) : response;
+                    return sanityChecks.isValidFunction(callback) ? callback(null, response) : response;
                 }  else {
                     response = new responseMessages.notFound();
-                    return sanityChecks.isValidFunction(callback) ? callback(response) : response;
+                    return sanityChecks.isValidFunction(callback) ? callback(null, response) : response;
                 }
             }).catch((err) => {
-                console.log(err);
                 response = new responseMessages.serverError();
-                return sanityChecks.isValidFunction(callback) ? callback(response) : response;
+                return sanityChecks.isValidFunction(callback) ? callback(null, response) : response;
             });
         } catch (err) {
-            console.log(err);
             response = new responseMessages.serverError();
-            return sanityChecks.isValidFunction(callback) ? callback(response) : response;
+            return sanityChecks.isValidFunction(callback) ? callback(null, response) : response;
         }
     },
 }

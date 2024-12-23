@@ -11,9 +11,9 @@ import Constant from '../../Constant';
 function Login({handleSignIn, email, password, onEmailTextChange, onPasswordTextChange}) {
     return (
         <>
-            <input className='input-field' type="email" placeholder="Email" value={email} required
+            <input className='auth-input-field' type="email" placeholder="Email" value={email} required
                    onChange={(e) => onEmailTextChange(e.target.value)}/>
-            <input className='input-field' type="password" placeholder="Password" value={password} required
+            <input className='auth-input-field' type="password" placeholder="Password" value={password} required
                    onChange={(e) => onPasswordTextChange(e.target.value)}/>
             <button className='btn' type="submit" onClick={handleSignIn}>Login</button>
         </>
@@ -23,11 +23,11 @@ function Login({handleSignIn, email, password, onEmailTextChange, onPasswordText
 function Signup({handleSignup, email, password, name, onEmailTextChange, onPasswordTextChange, onNameTextChange}) {
     return (
         <>
-            <input className='input-field' type="name" placeholder="Name" value={name} required
+            <input className='auth-input-field' type="name" placeholder="Name" value={name} required
                    onChange={(e) => onNameTextChange(e.target.value)}/>
-            <input className='input-field' type="email" placeholder="Email" value={email} required
+            <input className='auth-input-field' type="email" placeholder="Email" value={email} required
                    onChange={(e) => onEmailTextChange(e.target.value)}/>
-            <input className='input-field' type="password" placeholder="Password" value={password} required
+            <input className='auth-input-field' type="password" placeholder="Password" value={password} required
                    onChange={(e) => onPasswordTextChange(e.target.value)}/>
             <button className='btn' type="submit" onClick={handleSignup}>Signup</button>
         </>
@@ -58,9 +58,9 @@ function Auth() {
             }
             const response = await authService.signin(payload);
             setIsLoading(false);
-            if (response.data) {
-                setUserInfo(response.data);
-                storageService.setItem(response.data);
+            if (response.data && response.data.data) {
+                setUserInfo(response.data.data);
+                storageService.setItem(response.data.data);
                 navigate('/services');
             } else {
                 setError('Email or password is incorrect');
@@ -84,9 +84,9 @@ function Auth() {
             }
             const response = await authService.signup(payload);
             setIsLoading(false);
-            if (response.data) {
-                setUserInfo(response.data);
-                storageService.setItem(response.data);
+            if (response.data && response.data.data) {
+                setUserInfo(response.data.data);
+                storageService.setItem(response.data.data);
                 navigate('/services');
             } else {
                 setError('Please ensure email is unique');
@@ -118,7 +118,7 @@ function Auth() {
 
     return (
         <div className="app-container">
-            <div className='card'>
+            <div className='auth-card'>
                 <div className='navigation'>
                     <button className={flow === Constant.login ? 'selectedNavigationBtn' : 'navigationBtn'}
                             onClick={() => onSelectFlow(Constant.login)}>Login
@@ -130,10 +130,9 @@ function Auth() {
                 {flow === Constant.login ?
                     <Login handleSignIn={handleSignIn} onEmailTextChange={onEmailTextChange}
                            onPasswordTextChange={onPasswordTextChange}/> :
-                    <Signup handleSignIn={handleSignup} onEmailTextChange={onEmailTextChange}
+                    <Signup handleSignup={handleSignup} onEmailTextChange={onEmailTextChange}
                             onPasswordTextChange={onPasswordTextChange} onNameTextChange={onNameTextChange}/>
                 }
-
                 <div className='error'>{error}</div>
                 {isLoading ? <Loader/> : null}
             </div>

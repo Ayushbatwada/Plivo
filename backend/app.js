@@ -20,7 +20,7 @@ app.use(express.json());
 // Handling CORS related errors
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept,X-Access-Token');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept,X-Access-Token, X-Caller-Id');
     res.header('Access-Control-Allow-Methods', 'OPTIONS, GET, POST, PUT, DELETE');
     if('OPTIONS' === req.method) {
         res.sendStatus(200);
@@ -36,8 +36,7 @@ const socketIO = new Server(httpServer, {
     pingInterval: 60 * 1000,
     pingTimeout: 30 * 1000,
     cors: {
-        origin: "*",
-        methods: ['GET', 'POST'],
+        origin: "*"
     }
 });
 

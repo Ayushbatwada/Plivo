@@ -8,19 +8,18 @@ const useApi = () => {
     function getHttpHeader() {
         return {
             'Content-Type': 'application/json',
-            'x-access-token': userInfo.token,
+            'x-access-token': userInfo.jwtToken,
             'x-caller-id': userInfo.userId
         };
     }
 
     return {
         signin: (payload) => {
-            console.log(process.env.REACT_APP_SERVER_URL)
             return axios.put(`${process.env.REACT_APP_SERVER_URL}/auth/signin`, payload);
         },
 
         signup: (payload) => {
-            return axios.put(`${process.env.REACT_APP_SERVER_URL}/auth/signup`, payload);
+            return axios.post(`${process.env.REACT_APP_SERVER_URL}/auth/signup`, payload);
         },
 
         getAllServices: () => {
@@ -28,6 +27,10 @@ const useApi = () => {
         },
 
         createService: (payload) => {
+            payload['createdBy'] = {
+                userId: userInfo.userId,
+                userName: userInfo.name
+            }
             return axios.post(`${process.env.REACT_APP_SERVER_URL}/services/create/new`, payload, {headers: getHttpHeader()});
         },
 
@@ -39,11 +42,15 @@ const useApi = () => {
             return axios.put(`${process.env.REACT_APP_SERVER_URL}/services/status/change`, payload, {headers: getHttpHeader()})
         },
 
-        getAllIncidents: () => {
-            return axios.get(`${process.env.REACT_APP_SERVER_URL}/incidents/get/all`, {headers: getHttpHeader()});
+        getAllIncidents: (serviceId) => {
+            return axios.get(`${process.env.REACT_APP_SERVER_URL}/incidents/get/all?serviceId=${serviceId}`, {headers: getHttpHeader()});
         },
 
         createIncident: (payload) => {
+            payload['createdBy'] = {
+                userId: userInfo.userId,
+                userName: userInfo.name
+            }
             return axios.post(`${process.env.REACT_APP_SERVER_URL}/incidents/create/new`, payload, {headers: getHttpHeader()})
         },
 
