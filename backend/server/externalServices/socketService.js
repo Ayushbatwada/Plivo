@@ -66,7 +66,7 @@ module.exports = {
                     response = new responseMessages.payloadError();
                     return callback(response);
                 }
-                serviceService.updateService(data);
+                serviceService.updateServiceStatus(data);
                 response = new responseMessages.successMessage();
                 socket.broadcast.emit('service_status_change', data);
                 return callback(response);

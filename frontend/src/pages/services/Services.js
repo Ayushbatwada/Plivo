@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useContext} from 'react';
+import React, {useState, useEffect, useContext, useRef} from 'react';
 
 import useApi from "../../services/useApi";
 import useSocket from "../../services/useSocket";
@@ -11,11 +11,11 @@ import './Service.css';
 function Services() {
     const [services, setServices] = useState([]);
     const [isNewUpdate, setIsNewUpdate] = useState(false);
-    const [statusMessage, setStatusMessage] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [selectedService, setSelectedService] = useState({});
     const [isSideBarOpened, setIsSideBarOpened] = useState(false);
     const [flow, setFlow] = useState('');
+    const handleEvent = useRef(null);
 
     const {userInfo} = useContext(AuthContext)
     const apiService = useApi();
@@ -24,7 +24,7 @@ function Services() {
     useEffect(() => {
         if (userInfo && userInfo.userId) {
             const handleSocketEvent = (response) => {
-                handleEvent(response)
+                handleEvent.current(response)
             }
 
             getAllServices();
@@ -36,12 +36,12 @@ function Services() {
         }
     }, [userInfo]);
 
-    const handleEvent = (response) => {
+    handleEvent.current = (response) => {
         switch (response.event) {
             case 'service_status_change':
                 services.forEach((service) => {
-                    if (service._id === response.data.serviceId) {
-                        service.status = response.data.status;
+                    if (service._id === response.serviceId) {
+                        service.status = response.status;
                     }
                 });
                 setServices([...services]);
@@ -49,16 +49,31 @@ function Services() {
 
             case 'incident_create':
                 setIsNewUpdate(true);
-                setStatusMessage('New incident is open');
+                services.forEach((service) => {
+                    if (service._id === response.serviceId) {
+                        service.statusMessage = 'New incident is open';
+                    }
+                });
+                setServices([...services]);
                 break;
 
             case 'incident_update':
                 setIsNewUpdate(true);
-                setStatusMessage('Check update on open incident');
+                services.forEach((service) => {
+                    if (service._id === response.serviceId) {
+                        service.statusMessage = 'Check update on open incident';
+                    }
+                });
+                setServices([...services]);
                 break;
             case 'incident_resolve':
                 setIsNewUpdate(true);
-                setStatusMessage('Open incident is resolved');
+                services.forEach((service) => {
+                    if (service._id === response.serviceId) {
+                        service.statusMessage = 'Open incident is resolved';
+                    }
+                });
+                setServices([...services]);
                 break;
             default:
                 break;
@@ -82,7 +97,8 @@ function Services() {
         setIsSideBarOpened(true);
         setIsNewUpdate(false);
         setSelectedService({...service});
-        setStatusMessage('');
+        service.statusMessage = '';
+        setServices([...services])
         setFlow('incident_detail');
     }
 
@@ -119,13 +135,17 @@ function Services() {
             <div className='outerContainer'>
                 <div className='headingContainer'>
                     <div className='heading'>Services</div>
-                    <button className='headingBtn' onClick={(event) => openSideNavToCreateNewService(event)}>
-                        Create service
-                    </button>
+                    {
+                        userInfo?.roles?.includes('admin') ?
+                            <button className='headingBtn' onClick={openSideNavToCreateNewService}>
+                                Create service
+                            </button> :
+                            null
+                    }
                 </div>
                 <div className="servicesContainer">
                     {
-                        services.map((service, index) => {
+                        services?.map((service, index) => {
                             let statusStyle = 'status green';
                             if (service.status === 'major_outage') {
                                 statusStyle = 'status red'
@@ -142,19 +162,23 @@ function Services() {
                                     {isNewUpdate ?
                                         <div className='newUpdate'
                                              onClick={(event) => onServiceStatusUpdateClick(event, service)}>
-                                            {statusMessage}, click here to check
+                                            {service.statusMessage}
                                         </div> : null
                                     }
-                                    <div className='actions'>
-                                        <button className='outline-btn'
-                                                onClick={(event) => openSideNavToUpdateService(event, service)}>Update
-                                            service
-                                        </button>
-                                        <button className='solid-btn'
-                                                onClick={(event) => openSideNavToCreateIncident(event, service)}>Create
-                                            Incident
-                                        </button>
-                                    </div>
+                                    {
+                                        userInfo?.roles?.includes('admin') ?
+                                            <div className='actions'>
+                                                <button className='outline-btn'
+                                                        onClick={(event) => openSideNavToUpdateService(event, service)}>
+                                                    Update service
+                                                </button>
+                                                <button className='solid-btn'
+                                                        onClick={(event) => openSideNavToCreateIncident(event, service)}>
+                                                    Create Incident
+                                                </button>
+                                            </div>
+                                            : null
+                                    }
                                 </div>
                             )
                         })
@@ -163,8 +187,7 @@ function Services() {
                         <div className='overlay'>
                             <div className='sidebarContainer'>
                                 <SideNav selectedService={selectedService} flow={flow} setServices={setServices}
-                                         services={services}
-                                         closeSideBar={closeSideBar}/>
+                                         services={services} closeSideBar={closeSideBar}/>
                             </div>
                         </div> : null
                     }
@@ -177,9 +200,13 @@ function Services() {
             <div className='outerContainer'>
                 <div className='headingContainer'>
                     <div className='heading'>Services</div>
-                    <button className='headingBtn' onClick={openSideNavToCreateNewService}>
-                        Create service
-                    </button>
+                    {
+                        userInfo?.roles?.includes('admin') ?
+                            <button className='headingBtn' onClick={openSideNavToCreateNewService}>
+                                Create service
+                            </button> :
+                            null
+                    }
                 </div>
 
                 <div className='notFound'>

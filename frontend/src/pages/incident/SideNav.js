@@ -1,4 +1,5 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useContext} from 'react';
+import {AuthContext} from "../../services/AuthProvider";
 import useSocket from "../../services/useSocket";
 import useApi from "../../services/useApi";
 import Loader from "../../components/loader/Loader";
@@ -13,6 +14,7 @@ function SideNav({selectedService, flow, services, closeSideBar}) {
     const [incidentDescription, setIncidentDescription] = useState('');
     const [serviceStatus, setServiceStatus] = useState('');
 
+    const {userInfo} = useContext(AuthContext);
     const apiService = useApi();
     const socketService = useSocket();
 
@@ -42,6 +44,7 @@ function SideNav({selectedService, flow, services, closeSideBar}) {
         if (newUpdate.trim() && selectedService._id) {
             const payload = {
                 incidentId: incident._id,
+                serviceId: selectedService._id,
                 update: newUpdate,
             }
             incident.updates.unshift(newUpdate);
@@ -55,12 +58,13 @@ function SideNav({selectedService, flow, services, closeSideBar}) {
         if (selectedService._id && selectedService.createdAt) {
             const payload = {
                 incidentId: incident._id,
-                incidentCreatedAt: selectedService.createdAt
+                incidentCreatedAt: selectedService.createdAt,
+                serviceId: selectedService._id,
             }
             incident.status = 'resolved';
             setIncident({...incident});
             socketService.incidentResolve(payload);
-            closeSideBar();
+            closeSideBar({});
         }
     }
 
@@ -74,7 +78,7 @@ function SideNav({selectedService, flow, services, closeSideBar}) {
             apiService.createService(payload).then((response) => {
                 if (response && response.data && response.data.data) {
                     services.push(response.data.data);
-                    closeSideBar({isNewServiceAdded: true, services})
+                    closeSideBar({isNewServiceAdded: true, updatedServices: services})
                 }
                 setIsLoading(false);
             }).catch(() => {
@@ -96,12 +100,13 @@ function SideNav({selectedService, flow, services, closeSideBar}) {
             }
             apiService.updateService(payload).then((response) => {
                 if (response && response.data && response.data.data) {
-                    selectedService.description = serviceDescription;
-                    selectedService.name = serviceName;
-                    services = services.filter((service) => {
-                        return service._id === selectedService._id ? selectedService : service;
+                    services.map((service) => {
+                        if (service._id === selectedService._id) {
+                            service.name = serviceName;
+                            service.description = serviceDescription;
+                        }
                     });
-                    closeSideBar({isNewServiceAdded: true, services})
+                    closeSideBar({isNewServiceAdded: true, updatedServices: services})
                 }
                 setIsLoading(false);
             }).catch(() => {
@@ -115,18 +120,13 @@ function SideNav({selectedService, flow, services, closeSideBar}) {
                 status: serviceStatus,
                 serviceId: selectedService._id
             }
-            apiService.changeServiceStatus(payload).then((response) => {
-                if (response && response.data && response.data.data) {
-                    selectedService.status = serviceStatus;
-                    services = services.filter((service) => {
-                        return service._id === selectedService._id ? selectedService : service;
-                    });
-                    closeSideBar({isNewServiceAdded: true, services})
+            socketService.serviceStatusChange(payload);
+            services.map((service) => {
+                if (service._id === selectedService._id) {
+                    service.status = serviceStatus;
                 }
-                setIsLoading(false);
-            }).catch(() => {
-                setIsLoading(false);
-            })
+            });
+            closeSideBar({isNewServiceAdded: true, updatedServices: services})
         }
     }
 
@@ -134,13 +134,14 @@ function SideNav({selectedService, flow, services, closeSideBar}) {
         setIsLoading(true);
         const payload = {
             description: incidentDescription,
-            serviceId: selectedService._id
+            serviceId: selectedService._id,
+            createdBy: {
+                userId: userInfo.userId,
+                userName: userInfo.name
+            }
         }
-        apiService.createIncident(payload).then((response) => {
-            setIsLoading(false);
-        }).catch(() => {
-            setIsLoading(true);
-        });
+        socketService.createIncident(payload);
+        closeSideBar({})
     }
 
     const onTextChange = (text, flow) => {
@@ -191,18 +192,25 @@ function SideNav({selectedService, flow, services, closeSideBar}) {
                         return <div key={index} className='description'>{index + 1}. {update}</div>
                     })
                 }
-                <div className='name mt20'>Add update:</div>
-                <textarea className='textarea' value={newUpdate} placeholder='Enter new update'
-                          onChange={(e) => onTextChange(e.target.value, 'incident_update')}></textarea>
-                <button className='btn blue' onClick={sendIncidentUpdate}>Send update</button>
-                <button className='btn success' onClick={resolveIncident}>Resolve Incident</button>
+                {
+                    userInfo?.roles?.includes('admin') && incident.status === 'open' ?
+                        <div>
+                            <div className='name mt20'>Add update:</div>
+                            <textarea className='textarea' value={newUpdate} placeholder='Enter new update'
+                                      onChange={(e) => onTextChange(e.target.value, 'incident_update')}>
+                            </textarea>
+                            <button className='btn blue' onClick={sendIncidentUpdate}>Send update</button>
+                            <button className='btn success' onClick={resolveIncident}>Resolve Incident</button>
+                        </div> :
+                        null
+                }
             </div>
         )
     } else if (flow === 'create_new_service' || flow === 'edit_service') {
         return (
             <div>
                 <div className='heading'>
-                    Create new service
+                {flow === 'create_new_service' ? 'Create new service' : 'Edit service'}
                     <button className='btn indianred' onClick={oncloseSideBar}>Cancel</button>
                 </div>
                 <div className='mt20'>

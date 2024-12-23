@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const authConfig = require('./authConfig.json');
 
-const authModel  = require("./authModel");
+const authModel = require("./authModel");
 const sanityChecks = require("../../../utils/sanityChecks");
 const responseMessages = require("../../../utils/responseMessages");
 
@@ -19,14 +19,14 @@ function getJWTToken(payload, secretKey, options, callback) {
 module.exports = {
     getUserEmails: (callback) => {
         let response;
-        authModel.findOne({}, {email: 1}).then(async (authRes) => {
+        authModel.find({status: authConfig.status.active}, {email: 1}).then(async (authRes) => {
             if (sanityChecks.isValidArray(authRes)) {
                 response = new responseMessages.successMessage();
                 response.data = authRes;
-                callback(authRes);
+                callback(response);
             } else {
                 response = new responseMessages.notFound();
-                callback(authRes);
+                callback(response);
             }
         }).catch((err) => {
             console.log('ERROR ::: found in authService inside getUserEmails db catch block', err);
@@ -106,7 +106,7 @@ module.exports = {
         }
 
         try {
-            const query = { email: email, status: authConfig.status.active };
+            const query = {email: email, status: authConfig.status.active};
             authModel.findOne(query).then(async (authRes) => {
                 const isPasswordMatched = await bcrypt.compare(password, authRes?.password);
                 if (sanityChecks.isValidObject(authRes) && isPasswordMatched) {
