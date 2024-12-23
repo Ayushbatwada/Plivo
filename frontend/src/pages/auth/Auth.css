@@ -19,6 +19,7 @@
     background-color: white;
     border: 1px solid #2196f3;
     color: #2196f3;
+    cursor: pointer;
 }
 
 .selectedNavigationBtn {
@@ -28,6 +29,7 @@
     height: 35px;
     border-radius: 8px;
     border: 1px solid #2196f3;
+    cursor: pointer;
 }
 
 .auth-card {

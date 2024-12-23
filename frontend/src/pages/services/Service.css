@@ -21,7 +21,6 @@
 }
 
 .headingBtn {
-    cursor: pointer;
     width: 100px;
     height: 35px;
     border-radius: 8px;
@@ -29,6 +28,7 @@
     border: 1px solid #001443;
     color: white;
     margin-top: 10px;
+    cursor: pointer;
 }
 
 .servicesContainer {

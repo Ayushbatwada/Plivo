@@ -3,7 +3,7 @@ import {Routes, Route, Navigate} from 'react-router-dom';
 
 import Auth from './pages/auth/Auth';
 import Services from './pages/services/Services';
-import SideNav from './pages/incident/SideNav';
+import SideNav from './pages/sideNav/SideNav';
 
 function App() {
     return (

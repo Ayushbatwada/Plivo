@@ -4,7 +4,7 @@ import useApi from "../../services/useApi";
 import useSocket from "../../services/useSocket";
 
 import Loader from "../../components/loader/Loader";
-import SideNav from "../incident/SideNav";
+import SideNav from "../sideNav/SideNav";
 import {AuthContext} from "../../services/AuthProvider";
 import './Service.css';
 
@@ -51,7 +51,7 @@ function Services() {
                 setIsNewUpdate(true);
                 services.forEach((service) => {
                     if (service._id === response.serviceId) {
-                        service.statusMessage = 'New incident is open';
+                        service.statusMessage = 'New sideNav is open';
                     }
                 });
                 setServices([...services]);
@@ -61,7 +61,7 @@ function Services() {
                 setIsNewUpdate(true);
                 services.forEach((service) => {
                     if (service._id === response.serviceId) {
-                        service.statusMessage = 'Check update on open incident';
+                        service.statusMessage = 'Check update on open sideNav';
                     }
                 });
                 setServices([...services]);
@@ -70,7 +70,7 @@ function Services() {
                 setIsNewUpdate(true);
                 services.forEach((service) => {
                     if (service._id === response.serviceId) {
-                        service.statusMessage = 'Open incident is resolved';
+                        service.statusMessage = 'Open sideNav is resolved';
                     }
                 });
                 setServices([...services]);
@@ -211,8 +211,17 @@ function Services() {
 
                 <div className='notFound'>
                     Content which you are looking for is not available. If you are admin then please create services by
-                    clicking below create button
+                    clicking create button
                 </div>
+
+                {isSideBarOpened ?
+                    <div className='overlay'>
+                        <div className='sidebarContainer'>
+                            <SideNav selectedService={selectedService} flow={flow} setServices={setServices}
+                                     services={services} closeSideBar={closeSideBar}/>
+                        </div>
+                    </div> : null
+                }
             </div>
         )
     } else {

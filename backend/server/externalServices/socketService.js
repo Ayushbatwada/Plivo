@@ -72,7 +72,7 @@ module.exports = {
                 return callback(response);
             });
 
-            // incident update
+            // sideNav update
             socket.on('incident_create', (data, callback) => {
                 if (!sanityChecks.isValidId(data.serviceId) || !sanityChecks.isValidString(data.description) ||
                     !sanityChecks.isValidObject(data.createdBy) || !sanityChecks.isValidId(data.createdBy.userId)) {
@@ -85,7 +85,7 @@ module.exports = {
                 return callback(response);
             });
 
-            // incident update
+            // sideNav update
             socket.on('incident_update', (data, callback) => {
                 if (!sanityChecks.isValidId(data.incidentId) || !sanityChecks.isValidString(data.update)) {
                     response = new responseMessages.payloadError();
@@ -97,7 +97,7 @@ module.exports = {
                 return callback(response);
             });
 
-            // incident update
+            // sideNav update
             socket.on('incident_resolve', (data, callback) => {
                 if (!sanityChecks.isValidId(data.incidentId) || !sanityChecks.isValidDate(data.incidentCreatedAt)) {
                     response = new responseMessages.payloadError();
