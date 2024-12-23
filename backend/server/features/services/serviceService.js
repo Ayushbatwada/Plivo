@@ -18,10 +18,9 @@ module.exports = {
         try {
             serviceModel.findById({_id: serviceId}).then((getServiceStatusRes) => {
                 if (sanityChecks.isValidObject(getServiceStatusRes)) {
-                    return res.send({
-                        status: getServiceStatusRes.status,
-                        message: `Service - ${getServiceStatusRes.name} status is ${getServiceStatusRes.status}`
-                    });
+                    response = new responseMessages.successMessage();
+                    response.message = `Service - ${getServiceStatusRes.name} status is ${getServiceStatusRes.status}`;
+                    return res.status(response.code).send(response);
                 } else {
                     response = new responseMessages.notFound();
                     return res.status(response.code).send(response);

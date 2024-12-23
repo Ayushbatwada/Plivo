@@ -17,6 +17,32 @@ function getJWTToken(payload, secretKey, options, callback) {
 }
 
 module.exports = {
+    createAdminRole: (req, res) => {
+        let response;
+        const userId = req.params.userId;
+
+        if (!sanityChecks.isValidString(userId)) {
+            console.log('Info ::: Missing info in authService inside createAdminRole, userId: ', userId);
+            response = new responseMessages.payloadError();
+            return res.status(response.code).send(response);
+        }
+        const query = {_id: userId, status: authConfig.status.active};
+        const body = {$push: {roles: authConfig.roles.admin}};
+
+        authModel.findOneAndUpdate(query, body).then(async (createAdminRoleRes) => {
+            if (sanityChecks.isValidObject(createAdminRoleRes)) {
+                res.send({message: `${createAdminRoleRes.name} is now admin`});
+            } else {
+                response = new responseMessages.notFound();
+                res.status(response.code).send(response);
+            }
+        }).catch((err) => {
+            console.log('ERROR ::: found in authService inside createAdminRole db catch block', err);
+            response = new responseMessages.notFound();
+            res.status(response.code).send(response);
+        });
+    },
+
     getUserEmails: (callback) => {
         let response;
         authModel.find({status: authConfig.status.active}, {email: 1}).then(async (authRes) => {
