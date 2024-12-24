@@ -79,8 +79,8 @@ External API - **<server_base_url>/v1/api/services/status/:serviceId** For check
 
 Send **x-access-token** and **x-caller-id** in headers for authentication post login
 
-Admin can have access to create, edit and change the status of services and incidents
-So to make someone as admin to call this api - **<server_base_url>/admin/:userId - Replace :usedId with original id**
+Only Admin can have access to create, edit and change the status of services and incidents
+So to make someone as admin, call this api - **<server_base_url>/admin/:userId - Replace :usedId with original id**
 
 
 # Frontend ReadMe
