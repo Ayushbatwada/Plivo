@@ -51,7 +51,7 @@ function Services() {
                 setIsNewUpdate(true);
                 services.forEach((service) => {
                     if (service._id === response.serviceId) {
-                        service.statusMessage = 'New sideNav is open';
+                        service.statusMessage = 'New incident is open';
                     }
                 });
                 setServices([...services]);
@@ -61,7 +61,7 @@ function Services() {
                 setIsNewUpdate(true);
                 services.forEach((service) => {
                     if (service._id === response.serviceId) {
-                        service.statusMessage = 'Check update on open sideNav';
+                        service.statusMessage = 'Check update on opened incident';
                     }
                 });
                 setServices([...services]);
@@ -70,7 +70,7 @@ function Services() {
                 setIsNewUpdate(true);
                 services.forEach((service) => {
                     if (service._id === response.serviceId) {
-                        service.statusMessage = 'Open sideNav is resolved';
+                        service.statusMessage = 'Open incident is now resolved, Cheers!!';
                     }
                 });
                 setServices([...services]);

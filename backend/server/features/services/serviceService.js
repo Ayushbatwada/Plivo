@@ -194,9 +194,6 @@ module.exports = {
                             emailService.sendEmail(mailOptions);
                         }
                     });
-
-                    updateServiceStatusRes.status = body.status;
-                    response.data = updateServiceStatusRes;
                     return sanityChecks.isValidFunction(callback) ? callback(null, response) : response;
                 } else {
                     response = new responseMessages.notFound();
